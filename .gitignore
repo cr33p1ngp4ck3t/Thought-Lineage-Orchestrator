@@ -41,3 +41,11 @@ Thumbs.db
 *.json
 !src/signature_schema.json
 *.output
+
+.claude/
+.specify/
+
+SUBMISSION_CHECKLIST.md
+DEMO_SCRIPT.md
+BUILT_WITH.md
+CLAUDE.md

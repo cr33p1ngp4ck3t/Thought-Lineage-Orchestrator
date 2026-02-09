@@ -76,12 +76,12 @@ def run_parallel_demo(problem):
     )
     orchestrator.register_signature(analysis_sig)
 
-    # Parallel planning with different focus
-    planner_a = PlannerAgent()
-    planner_b = PlannerAgent()
+    # Parallel planning with COMPETING INCENTIVES
+    planner_a = PlannerAgent(focus="growth")
+    planner_b = PlannerAgent(focus="revenue")
 
-    constraints_a = ["Maximize growth", "Build user base", "Compete aggressively"]
-    constraints_b = ["Maximize revenue", "Premium positioning", "Target enterprise"]
+    constraints_a = ["Maximize user acquisition at all costs", "Viral growth is paramount", "Ignore short-term burn rate"]
+    constraints_b = ["Protect unit economics ruthlessly", "No pricing below sustainable margins", "Cash flow survival required"]
 
     plan_a_data = planner_a.plan(
         problem,

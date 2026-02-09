@@ -21,6 +21,12 @@ This project doesn't solve today's problems better—it solves **tomorrow's prob
 
 ## Key Features
 
+### 0. Competing Incentives (Domain Bias)
+Agents are programmed with **narrow domain optimization**:
+- Growth-focused planner: 100% user acquisition, ignores burn rate
+- Revenue-focused planner: 100% margin protection, blocks low pricing
+- This creates genuine reasoning conflicts (not artificial disagreement)
+
 ### 1. Thought Signatures
 Every agent interaction creates a structured "thought signature" containing:
 - Step-by-step reasoning chain with confidence scores
@@ -36,16 +42,19 @@ Three specialized agents work in concert:
 
 ### 3. Contradiction Detection (The "Wow" Factor)
 Using Gemini 3's deep reasoning capabilities, TLO:
-- Compares reasoning chains across parallel agents
-- Identifies logical inconsistencies and conflicts
-- Categorizes contradictions (assumptions, evidence, conclusions)
-- Measures severity and pinpoints root causes
+- **Analyzes assumption-level incompatibility** (not just conclusion differences)
+- Identifies irreconcilable core beliefs between agents
+- Extracts the fundamental trade-off they disagree on
+- Pinpoints exact divergence point in reasoning chains
+- Measures severity and creates "Reasoning Collision Report"
 
-### 4. Intelligent Synthesis
-When contradictions are detected, TLO:
-- Synthesizes hybrid solutions combining strengths of both paths
-- Resolves inconsistencies while maximizing confidence
-- Explains why the synthesis is superior to individual paths
+### 4. Intelligent Synthesis (Chief Justice Mode)
+When contradictions are detected, TLO acts as a Chief Justice:
+- **Arbitration Log**: Documents which assumptions were deprioritized and why
+- **Hybrid Assumption Creation**: Generates new unified assumptions
+- **Confidence Justification**: Mathematical reasoning for confidence scores
+- **Risk Resolution**: Addresses specific concerns from both reasoning paths
+- Synthesizes solutions that achieve BOTH conflicting objectives
 
 ### 5. Reasoning Graph Visualization
 Real-time visual representation of:

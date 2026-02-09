@@ -46,12 +46,12 @@ def test_contradiction_detection():
     print(f"  -> {analysis_sig.conclusion[:100]}...\n")
 
     # Create TWO planners with different constraints (parallel reasoning)
-    print("[PHASE 2] Creating PARALLEL PLANS with different priorities...")
+    print("[PHASE 2] Creating PARALLEL PLANS with COMPETING INCENTIVES...")
 
-    planner_a = PlannerAgent()
-    planner_b = PlannerAgent()
+    planner_a = PlannerAgent(focus="growth")
+    planner_b = PlannerAgent(focus="revenue")
 
-    print("  [Planner A] Focus: Market penetration & user growth")
+    print("  [Planner A] Growth-Obsessed (100% user acquisition focus)")
     plan_a_data = planner_a.plan(
         problem,
         analysis_signatures=[analysis_sig.to_dict()],
@@ -72,7 +72,7 @@ def test_contradiction_detection():
     print(f"    -> Plan A: {plan_a_sig.conclusion[:100]}...")
     print(f"    -> Confidence: {plan_a_sig.confidence_score:.2f}\n")
 
-    print("  [Planner B] Focus: Revenue maximization & premium positioning")
+    print("  [Planner B] Margin-Protection (100% profitability focus)")
     plan_b_data = planner_b.plan(
         problem,
         analysis_signatures=[analysis_sig.to_dict()],
@@ -98,10 +98,13 @@ def test_contradiction_detection():
     contradiction = detector.detect(plan_a_sig.to_dict(), plan_b_sig.to_dict())
 
     if contradiction['has_contradiction']:
-        print(f"  [!] CONTRADICTION FOUND!")
+        print(f"  [!] REASONING COLLISION DETECTED!")
         print(f"      Type: {contradiction['contradiction_type']}")
         print(f"      Severity: {contradiction['severity']:.2f}")
-        print(f"      Root Cause: {contradiction['root_cause']}")
+        print(f"      Agent A Assumes: {contradiction.get('assumption_a', 'N/A')}")
+        print(f"      Agent B Assumes: {contradiction.get('assumption_b', 'N/A')}")
+        print(f"      Incompatibility: {contradiction.get('logical_incompatibility', contradiction['root_cause'])}")
+        print(f"      Trade-off: {contradiction.get('fundamental_tradeoff', 'Not specified')}")
         print(f"      Suggestion: {contradiction['resolution_suggestion']}\n")
 
         # Synthesize resolution
@@ -125,10 +128,20 @@ def test_contradiction_detection():
         )
         orchestrator.register_signature(synthesis_sig)
 
-        print(f"  [+] SYNTHESIS COMPLETE")
+        print(f"  [+] CHIEF JUSTICE SYNTHESIS COMPLETE")
         print(f"      Conclusion: {synthesis_sig.conclusion}")
         print(f"      Confidence: {synthesis_sig.confidence_score:.2f}")
-        print(f"      Explanation: {synthesis_data.get('synthesis_explanation', 'N/A')}\n")
+        print(f"      Explanation: {synthesis_data.get('synthesis_explanation', 'N/A')}")
+
+        # Show arbitration log if available
+        if 'arbitration_log' in synthesis_data:
+            arb = synthesis_data['arbitration_log']
+            print(f"\n  [⚖️] ARBITRATION LOG:")
+            print(f"      Deprioritized: {arb.get('deprioritized_assumption', 'N/A')}")
+            print(f"      Hybrid Assumption: {arb.get('hybrid_assumption', 'N/A')}")
+            print(f"      Confidence Basis: {arb.get('confidence_justification', 'N/A')}\n")
+        else:
+            print()
 
     else:
         print("  [OK] No significant contradictions detected.\n")

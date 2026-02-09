@@ -27,12 +27,11 @@ class ContradictionDetector:
             Dictionary with contradiction analysis
         """
         prompt = f"""
-Analyze these two reasoning chains for logical contradictions.
+You are analyzing IRRECONCILABLE ASSUMPTIONS between two reasoning agents.
 
 SIGNATURE A (from {signature_a['agent_id']}):
 Conclusion: {signature_a['conclusion']}
 Confidence: {signature_a['confidence_score']}
-Reasoning Steps: {len(signature_a['reasoning_chain'])} steps
 
 Key reasoning:
 {self._format_reasoning_chain(signature_a['reasoning_chain'][:3])}
@@ -40,22 +39,31 @@ Key reasoning:
 SIGNATURE B (from {signature_b['agent_id']}):
 Conclusion: {signature_b['conclusion']}
 Confidence: {signature_b['confidence_score']}
-Reasoning Steps: {len(signature_b['reasoning_chain'])} steps
 
 Key reasoning:
 {self._format_reasoning_chain(signature_b['reasoning_chain'][:3])}
 
-Questions to analyze:
-1. Do they reach conflicting conclusions?
-2. Are their underlying assumptions incompatible?
-3. Is there evidence conflict (same data, different interpretations)?
-4. What's the root cause of any divergence?
+CRITICAL ANALYSIS REQUIRED:
+Focus on ASSUMPTION-LEVEL conflicts, not just conclusion differences.
+
+1. What CORE ASSUMPTION does Agent A make? (e.g., "Market share creates winner-take-all dynamics")
+2. What CORE ASSUMPTION does Agent B make? (e.g., "Cash flow is the only survival metric")
+3. Are these assumptions LOGICALLY INCOMPATIBLE? (Can both be true simultaneously?)
+4. At what specific reasoning step did their logic diverge?
+5. What is the FUNDAMENTAL TRADE-OFF they disagree on?
+
+Create a "Reasoning Collision Report" that identifies the exact logical divergence point.
 
 Output ONLY valid JSON:
 {{
   "has_contradiction": true/false,
   "contradiction_type": "conclusion|assumption|evidence|interpretation|none",
   "severity": 0.0-1.0,
+  "assumption_a": "Core assumption from Agent A",
+  "assumption_b": "Core assumption from Agent B",
+  "logical_incompatibility": "Why these assumptions cannot both be true",
+  "divergence_point": "At which reasoning step did they diverge",
+  "fundamental_tradeoff": "The underlying trade-off they disagree on",
   "root_cause": "explanation of the core conflict",
   "resolution_suggestion": "how to reconcile these views",
   "conflicting_elements": [

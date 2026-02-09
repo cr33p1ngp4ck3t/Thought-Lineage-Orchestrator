@@ -55,6 +55,9 @@ class BaseAgent:
         prompt = f"""
 You are {self.agent_id}: {self.role_description}
 
+CRITICAL: You are DEEPLY BIASED toward your domain expertise. Defend your perspective aggressively.
+Your recommendation should be NARROWLY OPTIMAL for your specific domain, even if it creates conflicts with other perspectives.
+
 Analyze this problem and emit a structured thought signature.
 
 PROBLEM: {problem}{context_text}{constraints_text}

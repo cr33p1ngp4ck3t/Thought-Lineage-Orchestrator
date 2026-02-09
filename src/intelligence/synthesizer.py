@@ -33,29 +33,39 @@ class Synthesizer:
             New synthesized thought signature
         """
         prompt = f"""
-You are the Orchestrator synthesizing conflicting reasoning paths.
+You are the CHIEF JUSTICE presiding over a reasoning conflict. Your role is to arbitrate and synthesize.
 
 PATH 1 (from {signature_a['agent_id']}):
+Core Assumption: {contradiction.get('assumption_a', 'Unknown')}
 Conclusion: {signature_a['conclusion']}
 Confidence: {signature_a['confidence_score']}
 
 PATH 2 (from {signature_b['agent_id']}):
+Core Assumption: {contradiction.get('assumption_b', 'Unknown')}
 Conclusion: {signature_b['conclusion']}
-Confidence: {signature_b['confidence_score']}
+Confidence: {contradiction_b['confidence_score']}
 
-CONTRADICTION DETECTED:
+REASONING COLLISION DETECTED:
 Type: {contradiction['contradiction_type']}
 Severity: {contradiction['severity']}
-Root Cause: {contradiction['root_cause']}
-Suggested Resolution: {contradiction['resolution_suggestion']}
+Logical Incompatibility: {contradiction.get('logical_incompatibility', 'Not specified')}
+Fundamental Trade-off: {contradiction.get('fundamental_tradeoff', 'Not specified')}
+Divergence Point: {contradiction.get('divergence_point', 'Not specified')}
 
-Create a hybrid solution that:
-1. Preserves the strengths of both reasoning paths
-2. Resolves the logical inconsistency
-3. Maximizes overall confidence
-4. Explains why this synthesis is superior to either individual path
+YOUR ARBITRATION MUST INCLUDE:
 
-Generate a new thought signature with the same JSON structure:
+1. **Arbitration Log** - Document your judicial reasoning:
+   - Which agent's assumption you deprioritized (and why)
+   - What new HYBRID ASSUMPTION you created to satisfy both constraints
+   - Mathematical justification for confidence score based on risk resolution
+
+2. **Synthesis Logic** - Create a solution that:
+   - Preserves the valid concerns from both paths
+   - Resolves the logical incompatibility
+   - Achieves the fundamental trade-off balance
+   - Explains why this is superior to either individual path
+
+Generate a new thought signature with ENHANCED structure including arbitration_log:
 {{
   "reasoning_chain": [
     {{
@@ -67,6 +77,12 @@ Generate a new thought signature with the same JSON structure:
   ],
   "conclusion": "synthesized recommendation",
   "confidence_score": 0.0-1.0,
+  "arbitration_log": {{
+    "deprioritized_assumption": "Which agent assumption was downweighted and why",
+    "hybrid_assumption": "The new unified assumption created",
+    "confidence_justification": "Mathematical/logical reason for the confidence score",
+    "risk_resolution": "How specific risks from both paths were addressed"
+  }},
   "alternative_paths": [
     {{
       "reasoning": "original Path 1 approach",

@@ -333,6 +333,22 @@
 
             signatures.forEach((sig, idx) => {
                 const typeClass = sig.reasoning_type;
+                let arbitrationHtml = '';
+
+                // Add arbitration log for synthesis nodes
+                if (sig.reasoning_type === 'synthesis' && sig.arbitration_log) {
+                    arbitrationHtml = `
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #e0e0e0;">
+                            <strong>⚖️ Chief Justice Arbitration:</strong>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li><strong>Deprioritized:</strong> ${sig.arbitration_log.deprioritized_assumption || 'N/A'}</li>
+                                <li><strong>Hybrid Assumption:</strong> ${sig.arbitration_log.hybrid_assumption || 'N/A'}</li>
+                                <li><strong>Confidence Basis:</strong> ${sig.arbitration_log.confidence_justification || 'N/A'}</li>
+                            </ul>
+                        </div>
+                    `;
+                }
+
                 html += `
                     <div class="node ${typeClass}">
                         <div class="node-header">
@@ -341,6 +357,7 @@
                         </div>
                         <div class="node-content">
                             <strong>Conclusion:</strong> ${sig.conclusion}
+                            ${arbitrationHtml}
                         </div>
                     </div>
                 `;
@@ -354,10 +371,13 @@
             if (data.contradiction) {
                 const contradictionHtml = `
                     <div class="contradiction-alert">
-                        <h3>⚠️ Contradiction Detected & Resolved</h3>
+                        <h3>⚠️ Reasoning Collision Detected</h3>
                         <p><strong>Type:</strong> ${data.contradiction.contradiction_type}</p>
                         <p><strong>Severity:</strong> ${(data.contradiction.severity * 100).toFixed(0)}%</p>
-                        <p><strong>Root Cause:</strong> ${data.contradiction.root_cause}</p>
+                        <p><strong>Agent A Assumption:</strong> ${data.contradiction.assumption_a || 'N/A'}</p>
+                        <p><strong>Agent B Assumption:</strong> ${data.contradiction.assumption_b || 'N/A'}</p>
+                        <p><strong>Logical Incompatibility:</strong> ${data.contradiction.logical_incompatibility || data.contradiction.root_cause}</p>
+                        <p><strong>Fundamental Trade-off:</strong> ${data.contradiction.fundamental_tradeoff || 'Not specified'}</p>
                         <p><strong>Resolution:</strong> ${data.contradiction.resolution_suggestion}</p>
                     </div>
                 `;

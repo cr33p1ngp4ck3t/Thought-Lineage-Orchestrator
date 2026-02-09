@@ -43,7 +43,7 @@ Confidence: {signature_a['confidence_score']}
 PATH 2 (from {signature_b['agent_id']}):
 Core Assumption: {contradiction.get('assumption_b', 'Unknown')}
 Conclusion: {signature_b['conclusion']}
-Confidence: {contradiction_b['confidence_score']}
+Confidence: {signature_b['confidence_score']}
 
 REASONING COLLISION DETECTED:
 Type: {contradiction['contradiction_type']}

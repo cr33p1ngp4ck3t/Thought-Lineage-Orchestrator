@@ -26,13 +26,40 @@ def process_problem():
     data = request.json
     problem = data.get('problem', '')
     mode = data.get('mode', 'sequential')  # sequential or parallel
+    custom_api_key = data.get('api_key')  # Optional custom API key
+    model = data.get('model', 'gemini-3-flash-preview')  # Optional model selection
 
     if not problem:
         return jsonify({"error": "Problem statement required"}), 400
 
-    orchestrator = ThoughtLineageOrchestrator()
+    # If custom API key provided, temporarily configure it
+    import google.generativeai as genai
+    original_api_key = None
+    original_model = None
 
     try:
+        if custom_api_key:
+            # Save original config
+            from config import Config
+            original_api_key = Config.GEMINI_API_KEY
+            original_model = Config.GEMINI_MODEL
+
+            # Use custom config
+            Config.GEMINI_API_KEY = custom_api_key
+            Config.GEMINI_MODEL = model
+            genai.configure(api_key=custom_api_key)
+
+            # Create new orchestrator with custom config
+            orchestrator = ThoughtLineageOrchestrator()
+        else:
+            # Use default config but update model if specified
+            from config import Config
+            if model != Config.GEMINI_MODEL:
+                original_model = Config.GEMINI_MODEL
+                Config.GEMINI_MODEL = model
+
+            orchestrator = ThoughtLineageOrchestrator()
+
         if mode == 'parallel':
             # Parallel mode: create conflicting plans to demonstrate contradiction detection
             results = run_parallel_demo(problem)
@@ -44,7 +71,21 @@ def process_problem():
         return jsonify(results)
 
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"[ERROR] {error_details}")
         return jsonify({"error": str(e)}), 500
+
+    finally:
+        # Restore original config if it was changed
+        if original_api_key:
+            from config import Config
+            Config.GEMINI_API_KEY = original_api_key
+            Config.GEMINI_MODEL = original_model or 'gemini-3-flash-preview'
+            genai.configure(api_key=original_api_key)
+        elif original_model:
+            from config import Config
+            Config.GEMINI_MODEL = original_model
 
 
 @app.route('/api/graph')

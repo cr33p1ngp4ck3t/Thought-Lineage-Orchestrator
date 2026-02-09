@@ -1,0 +1,10 @@
+.env
+*.pyc
+__pycache__/
+.git/
+.specify/
+.claude/
+*.output
+*.json
+!src/signature_schema.json
+!vercel.json

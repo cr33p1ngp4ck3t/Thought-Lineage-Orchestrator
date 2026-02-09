@@ -158,9 +158,11 @@ def run_parallel_demo(problem):
 
 
 if __name__ == '__main__':
+    import os
     print("\n" + "="*80)
     print(" THOUGHT LINEAGE ORCHESTRATOR - Web Interface")
     print("="*80)
-    print("\nStarting server at http://localhost:5000")
+    port = int(os.environ.get('PORT', 5000))
+    print(f"\nStarting server on port {port}")
     print("Press Ctrl+C to stop\n")
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=port, debug=False)

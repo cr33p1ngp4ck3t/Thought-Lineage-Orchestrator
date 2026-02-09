@@ -1,355 +1,381 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thought Lineage Orchestrator - Gemini 3 Demo</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Thought Lineage Orchestrator - Gemini 3 Demo</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+			body {
+				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+				background: #222222;
+				min-height: 100vh;
+				padding: 20px;
+			}
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
+			.container {
+				max-width: 1400px;
+				margin: 0 auto;
+				background: white;
+				border-radius: 20px;
+				box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+				overflow: hidden;
+			}
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
+			.header {
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: white;
+				padding: 30px;
+				text-align: center;
+			}
 
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
+			.header h1 {
+				font-size: 2.5em;
+				margin-bottom: 10px;
+			}
 
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
+			.header p {
+				font-size: 1.1em;
+				opacity: 0.9;
+			}
 
-        .content {
-            padding: 30px;
-        }
+			.content {
+				padding: 30px;
+			}
 
-        .input-section {
-            margin-bottom: 30px;
-        }
+			.input-section {
+				margin-bottom: 30px;
+			}
 
-        .input-group {
-            margin-bottom: 20px;
-        }
+			.input-group {
+				margin-bottom: 20px;
+			}
 
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
+			label {
+				display: block;
+				font-weight: 600;
+				margin-bottom: 8px;
+				color: #333;
+			}
 
-        textarea, select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1em;
-            font-family: inherit;
-            transition: border-color 0.3s;
-        }
+			textarea,
+			select {
+				width: 100%;
+				padding: 12px;
+				border: 2px solid #e0e0e0;
+				border-radius: 8px;
+				font-size: 1em;
+				font-family: inherit;
+				transition: border-color 0.3s;
+			}
 
-        textarea:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+			textarea:focus,
+			select:focus {
+				outline: none;
+				border-color: #667eea;
+			}
 
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
+			textarea {
+				min-height: 100px;
+				resize: vertical;
+			}
 
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.1em;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
+			.btn {
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: white;
+				border: none;
+				padding: 15px 40px;
+				font-size: 1.1em;
+				border-radius: 8px;
+				cursor: pointer;
+				transition:
+					transform 0.2s,
+					box-shadow 0.2s;
+			}
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
+			.btn:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+			}
 
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+			.btn:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
 
-        .results {
-            display: none;
-        }
+			.results {
+				display: none;
+			}
 
-        .results.active {
-            display: block;
-        }
+			.results.active {
+				display: block;
+			}
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            display: none;
-        }
+			.loading {
+				text-align: center;
+				padding: 40px;
+				display: none;
+			}
 
-        .loading.active {
-            display: block;
-        }
+			.loading.active {
+				display: block;
+			}
 
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
+			.spinner {
+				border: 4px solid #f3f3f3;
+				border-top: 4px solid #667eea;
+				border-radius: 50%;
+				width: 50px;
+				height: 50px;
+				animation: spin 1s linear infinite;
+				margin: 0 auto 20px;
+			}
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+			@keyframes spin {
+				0% {
+					transform: rotate(0deg);
+				}
+				100% {
+					transform: rotate(360deg);
+				}
+			}
 
-        .graph-container {
-            background: #f9f9f9;
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-        }
+			.graph-container {
+				background: #f9f9f9;
+				padding: 30px;
+				border-radius: 12px;
+				margin-bottom: 30px;
+			}
 
-        .node {
-            background: white;
-            border: 3px solid #667eea;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 15px 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
+			.node {
+				background: white;
+				border: 3px solid #667eea;
+				border-radius: 12px;
+				padding: 20px;
+				margin: 15px 0;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+				transition:
+					transform 0.2s,
+					box-shadow 0.2s;
+			}
 
-        .node:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-        }
+			.node:hover {
+				transform: translateY(-4px);
+				box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+			}
 
-        .node.analysis { border-color: #4CAF50; }
-        .node.decision { border-color: #2196F3; }
-        .node.synthesis { border-color: #FF9800; }
-        .node.contradiction { border-color: #f44336; background: #ffebee; }
+			.node.analysis {
+				border-color: #4caf50;
+			}
+			.node.decision {
+				border-color: #2196f3;
+			}
+			.node.synthesis {
+				border-color: #ff9800;
+			}
+			.node.contradiction {
+				border-color: #f44336;
+				background: #ffebee;
+			}
 
-        .node-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+			.node-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 15px;
+			}
 
-        .node-title {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: #333;
-        }
+			.node-title {
+				font-size: 1.2em;
+				font-weight: 600;
+				color: #333;
+			}
 
-        .confidence {
-            background: #667eea;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-        }
+			.confidence {
+				background: #667eea;
+				color: white;
+				padding: 5px 15px;
+				border-radius: 20px;
+				font-size: 0.9em;
+			}
 
-        .node-content {
-            color: #666;
-            line-height: 1.6;
-        }
+			.node-content {
+				color: #666;
+				line-height: 1.6;
+			}
 
-        .contradiction-alert {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-        }
+			.contradiction-alert {
+				background: #fff3cd;
+				border: 2px solid #ffc107;
+				border-radius: 12px;
+				padding: 20px;
+				margin: 20px 0;
+			}
 
-        .contradiction-alert h3 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
+			.contradiction-alert h3 {
+				color: #856404;
+				margin-bottom: 10px;
+			}
 
-        .stats {
-            display: flex;
-            gap: 20px;
-            margin-top: 30px;
-        }
+			.stats {
+				display: flex;
+				gap: 20px;
+				margin-top: 30px;
+			}
 
-        .stat-card {
-            flex: 1;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-        }
+			.stat-card {
+				flex: 1;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: white;
+				padding: 20px;
+				border-radius: 12px;
+				text-align: center;
+			}
 
-        .stat-value {
-            font-size: 2.5em;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
+			.stat-value {
+				font-size: 2.5em;
+				font-weight: bold;
+				margin-bottom: 5px;
+			}
 
-        .stat-label {
-            opacity: 0.9;
-        }
+			.stat-label {
+				opacity: 0.9;
+			}
 
-        .arrow {
-            text-align: center;
-            font-size: 2em;
-            color: #667eea;
-            margin: 10px 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Thought Lineage Orchestrator</h1>
-            <p>AI-to-AI Reasoning Coordination powered by Gemini 3</p>
-        </div>
+			.arrow {
+				text-align: center;
+				font-size: 2em;
+				color: #667eea;
+				margin: 10px 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1>Thought Lineage Orchestrator</h1>
+				<p>AI-to-AI Reasoning Coordination powered by Gemini 3</p>
+			</div>
 
-        <div class="content">
-            <div class="input-section">
-                <div class="input-group">
-                    <label for="problem">Problem Statement</label>
-                    <textarea id="problem" placeholder="Enter a complex problem that requires multi-agent reasoning...">Choose the pricing strategy for our AI tool</textarea>
-                </div>
+			<div class="content">
+				<div class="input-section">
+					<div class="input-group">
+						<label for="problem">Problem Statement</label>
+						<textarea
+							id="problem"
+							placeholder="Enter a complex problem that requires multi-agent reasoning..."
+						>
+Choose the pricing strategy for our AI tool</textarea
+						>
+					</div>
 
-                <div class="input-group">
-                    <label for="mode">Reasoning Mode</label>
-                    <select id="mode">
-                        <option value="sequential">Sequential (Standard workflow)</option>
-                        <option value="parallel" selected>Parallel (Demonstrate contradiction detection)</option>
-                    </select>
-                </div>
+					<div class="input-group">
+						<label for="mode">Reasoning Mode</label>
+						<select id="mode">
+							<option value="sequential">Sequential (Standard workflow)</option>
+							<option value="parallel" selected>
+								Parallel (Demonstrate contradiction detection)
+							</option>
+						</select>
+					</div>
 
-                <button class="btn" onclick="processProblem()">Process Problem</button>
-            </div>
+					<button class="btn" onclick="processProblem()">Process Problem</button>
+				</div>
 
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>Running multi-agent reasoning system...</p>
-            </div>
+				<div class="loading" id="loading">
+					<div class="spinner"></div>
+					<p>Running multi-agent reasoning system...</p>
+				</div>
 
-            <div class="results" id="results">
-                <h2>Reasoning Graph</h2>
-                <div class="graph-container" id="graphContainer"></div>
+				<div class="results" id="results">
+					<h2>Reasoning Graph</h2>
+					<div class="graph-container" id="graphContainer"></div>
 
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-value" id="nodeCount">0</div>
-                        <div class="stat-label">Reasoning Nodes</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="edgeCount">0</div>
-                        <div class="stat-label">Dependencies</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="avgConfidence">0.00</div>
-                        <div class="stat-label">Avg Confidence</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+					<div class="stats">
+						<div class="stat-card">
+							<div class="stat-value" id="nodeCount">0</div>
+							<div class="stat-label">Reasoning Nodes</div>
+						</div>
+						<div class="stat-card">
+							<div class="stat-value" id="edgeCount">0</div>
+							<div class="stat-label">Dependencies</div>
+						</div>
+						<div class="stat-card">
+							<div class="stat-value" id="avgConfidence">0.00</div>
+							<div class="stat-label">Avg Confidence</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <script>
-        async function processProblem() {
-            const problem = document.getElementById('problem').value;
-            const mode = document.getElementById('mode').value;
+		<script>
+			async function processProblem() {
+				const problem = document.getElementById("problem").value;
+				const mode = document.getElementById("mode").value;
 
-            if (!problem.trim()) {
-                alert('Please enter a problem statement');
-                return;
-            }
+				if (!problem.trim()) {
+					alert("Please enter a problem statement");
+					return;
+				}
 
-            // Show loading
-            document.getElementById('loading').classList.add('active');
-            document.getElementById('results').classList.remove('active');
+				// Show loading
+				document.getElementById("loading").classList.add("active");
+				document.getElementById("results").classList.remove("active");
 
-            try {
-                const response = await fetch('/api/process', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ problem, mode })
-                });
+				try {
+					const response = await fetch("/api/process", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ problem, mode }),
+					});
 
-                const data = await response.json();
+					const data = await response.json();
 
-                if (data.error) {
-                    alert('Error: ' + data.error);
-                    return;
-                }
+					if (data.error) {
+						alert("Error: " + data.error);
+						return;
+					}
 
-                displayResults(data);
-            } catch (error) {
-                alert('Error: ' + error.message);
-            } finally {
-                document.getElementById('loading').classList.remove('active');
-            }
-        }
+					displayResults(data);
+				} catch (error) {
+					alert("Error: " + error.message);
+				} finally {
+					document.getElementById("loading").classList.remove("active");
+				}
+			}
 
-        function displayResults(data) {
-            const container = document.getElementById('graphContainer');
-            container.innerHTML = '';
+			function displayResults(data) {
+				const container = document.getElementById("graphContainer");
+				container.innerHTML = "";
 
-            const signatures = data.signatures || [];
-            let html = '';
+				const signatures = data.signatures || [];
+				let html = "";
 
-            signatures.forEach((sig, idx) => {
-                const typeClass = sig.reasoning_type;
-                let arbitrationHtml = '';
+				signatures.forEach((sig, idx) => {
+					const typeClass = sig.reasoning_type;
+					let arbitrationHtml = "";
 
-                // Add arbitration log for synthesis nodes
-                if (sig.reasoning_type === 'synthesis' && sig.arbitration_log) {
-                    arbitrationHtml = `
+					// Add arbitration log for synthesis nodes
+					if (sig.reasoning_type === "synthesis" && sig.arbitration_log) {
+						arbitrationHtml = `
                         <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #e0e0e0;">
                             <strong>⚖️ Chief Justice Arbitration:</strong>
                             <ul style="margin: 10px 0; padding-left: 20px;">
-                                <li><strong>Deprioritized:</strong> ${sig.arbitration_log.deprioritized_assumption || 'N/A'}</li>
-                                <li><strong>Hybrid Assumption:</strong> ${sig.arbitration_log.hybrid_assumption || 'N/A'}</li>
-                                <li><strong>Confidence Basis:</strong> ${sig.arbitration_log.confidence_justification || 'N/A'}</li>
+                                <li><strong>Deprioritized:</strong> ${sig.arbitration_log.deprioritized_assumption || "N/A"}</li>
+                                <li><strong>Hybrid Assumption:</strong> ${sig.arbitration_log.hybrid_assumption || "N/A"}</li>
+                                <li><strong>Confidence Basis:</strong> ${sig.arbitration_log.confidence_justification || "N/A"}</li>
                             </ul>
                         </div>
                     `;
-                }
+					}
 
-                html += `
+					html += `
                     <div class="node ${typeClass}">
                         <div class="node-header">
                             <div class="node-title">${sig.agent_id}</div>
@@ -362,43 +388,47 @@
                     </div>
                 `;
 
-                if (idx < signatures.length - 1) {
-                    html += '<div class="arrow">↓</div>';
-                }
-            });
+					if (idx < signatures.length - 1) {
+						html += '<div class="arrow">↓</div>';
+					}
+				});
 
-            // Add contradiction alert if present
-            if (data.contradiction) {
-                const contradictionHtml = `
+				// Add contradiction alert if present
+				if (data.contradiction) {
+					const contradictionHtml = `
                     <div class="contradiction-alert">
                         <h3>⚠️ Reasoning Collision Detected</h3>
                         <p><strong>Type:</strong> ${data.contradiction.contradiction_type}</p>
                         <p><strong>Severity:</strong> ${(data.contradiction.severity * 100).toFixed(0)}%</p>
-                        <p><strong>Agent A Assumption:</strong> ${data.contradiction.assumption_a || 'N/A'}</p>
-                        <p><strong>Agent B Assumption:</strong> ${data.contradiction.assumption_b || 'N/A'}</p>
+                        <p><strong>Agent A Assumption:</strong> ${data.contradiction.assumption_a || "N/A"}</p>
+                        <p><strong>Agent B Assumption:</strong> ${data.contradiction.assumption_b || "N/A"}</p>
                         <p><strong>Logical Incompatibility:</strong> ${data.contradiction.logical_incompatibility || data.contradiction.root_cause}</p>
-                        <p><strong>Fundamental Trade-off:</strong> ${data.contradiction.fundamental_tradeoff || 'Not specified'}</p>
+                        <p><strong>Fundamental Trade-off:</strong> ${data.contradiction.fundamental_tradeoff || "Not specified"}</p>
                         <p><strong>Resolution:</strong> ${data.contradiction.resolution_suggestion}</p>
                     </div>
                 `;
-                const synthIndex = html.lastIndexOf('<div class="node synthesis">');
-                if (synthIndex > -1) {
-                    html = html.slice(0, synthIndex) + contradictionHtml + html.slice(synthIndex);
-                }
-            }
+					const synthIndex = html.lastIndexOf('<div class="node synthesis">');
+					if (synthIndex > -1) {
+						html =
+							html.slice(0, synthIndex) + contradictionHtml + html.slice(synthIndex);
+					}
+				}
 
-            container.innerHTML = html;
+				container.innerHTML = html;
 
-            // Update stats
-            const graph = data.graph || { nodes: [], edges: [] };
-            document.getElementById('nodeCount').textContent = graph.nodes.length;
-            document.getElementById('edgeCount').textContent = graph.edges.length;
+				// Update stats
+				const graph = data.graph || { nodes: [], edges: [] };
+				document.getElementById("nodeCount").textContent = graph.nodes.length;
+				document.getElementById("edgeCount").textContent = graph.edges.length;
 
-            const avgConf = signatures.reduce((sum, sig) => sum + sig.confidence_score, 0) / signatures.length;
-            document.getElementById('avgConfidence').textContent = avgConf.toFixed(2);
+				const avgConf =
+					signatures.reduce((sum, sig) => sum + sig.confidence_score, 0) /
+					signatures.length;
+				document.getElementById("avgConfidence").textContent = avgConf.toFixed(2);
 
-            document.getElementById('results').classList.add('active');
-        }
-    </script>
-</body>
+				document.getElementById("results").classList.add("active");
+			}
+		</script>
+	</body>
 </html>
+

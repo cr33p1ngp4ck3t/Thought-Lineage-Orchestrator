@@ -17,7 +17,7 @@ The Thought Lineage Orchestrator is a Flask application. Here are the recommende
    - **Name**: `thought-lineage-orchestrator`
    - **Environment**: `Python 3`
    - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `cd src && gunicorn app:app --bind 0.0.0.0:$PORT`
+   - **Start Command**: `cd src && gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120`
    - **Environment Variables**:
      - Key: `GEMINI_API_KEY`
      - Value: Your API key

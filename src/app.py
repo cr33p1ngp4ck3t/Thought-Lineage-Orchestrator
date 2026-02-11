@@ -34,8 +34,13 @@ def process_problem():
 
     # If custom API key provided, temporarily configure it
     import google.generativeai as genai
+    from config import Config
     original_api_key = None
     original_model = None
+
+    # Check that we have an API key (either from env or user-provided)
+    if not custom_api_key and not Config.is_configured():
+        return jsonify({"error": "No API key configured. Please enter your Gemini API key in the API Key field."}), 400
 
     try:
         if custom_api_key:

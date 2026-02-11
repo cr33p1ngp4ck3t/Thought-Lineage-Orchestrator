@@ -25,8 +25,15 @@ class Config:
     def validate(cls):
         """Validate that required configuration is present."""
         if not cls.GEMINI_API_KEY:
-            raise ValueError("GEMINI_API_KEY not found in environment variables. Please set it in .env file.")
+            raise ValueError("GEMINI_API_KEY not found in environment variables. Please set it in .env file or provide one in the web UI.")
         return True
 
-# Validate configuration on import
-Config.validate()
+    @classmethod
+    def is_configured(cls):
+        """Check if API key is configured without raising."""
+        return bool(cls.GEMINI_API_KEY)
+
+# Warn but don't crash at import - users can provide API key via the web UI
+if not Config.is_configured():
+    import sys
+    print("[WARNING] GEMINI_API_KEY not set. Users must provide an API key via the web UI.", file=sys.stderr)

@@ -6,7 +6,8 @@ from typing import Dict, List
 import google.generativeai as genai
 from config import Config
 
-genai.configure(api_key=Config.GEMINI_API_KEY)
+if Config.is_configured():
+    genai.configure(api_key=Config.GEMINI_API_KEY)
 
 
 class Synthesizer:

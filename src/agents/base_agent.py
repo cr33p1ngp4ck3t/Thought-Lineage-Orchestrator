@@ -6,8 +6,9 @@ from typing import Dict, List, Optional
 import google.generativeai as genai
 from config import Config
 
-# Configure Gemini API
-genai.configure(api_key=Config.GEMINI_API_KEY)
+# Configure Gemini API at import time only if key is available
+if Config.is_configured():
+    genai.configure(api_key=Config.GEMINI_API_KEY)
 
 
 class BaseAgent:
@@ -16,6 +17,7 @@ class BaseAgent:
     def __init__(self, agent_id: str, role_description: str):
         self.agent_id = agent_id
         self.role_description = role_description
+        # Use current Config values (may have been updated with user-provided key)
         self.model = genai.GenerativeModel(Config.GEMINI_MODEL)
 
     def generate_signature(

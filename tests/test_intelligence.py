@@ -18,3 +18,11 @@ def test_detector_uses_injected_client():
     assert result["has_contradiction"] is False
     assert result["signatures_compared"] == ["a", "b"]
     assert len(client.prompts) == 1
+
+
+def test_synthesizer_uses_injected_client():
+    client = FakeGeminiClient(signature_payload("Hybrid"))
+    result = Synthesizer(client).synthesize(make_signature("a"), make_signature("b"), {"contradiction_type": "assumption", "severity": 0.8})
+    assert result["conclusion"] == "Hybrid"
+    assert result["context"]["parent_signatures"] == ["a", "b"]
+    assert len(client.prompts) == 1

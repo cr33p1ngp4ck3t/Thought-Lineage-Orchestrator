@@ -6,6 +6,7 @@ import json
 from typing import Dict, List
 
 from config import Config
+from errors import ContradictionDetectionError
 from gemini_client import GeminiClient
 
 
@@ -89,18 +90,7 @@ Output ONLY valid JSON:
             return result
 
         except Exception as e:
-            print(f"[ERROR] Contradiction detection failed: {e}")
-            return {
-                "has_contradiction": False,
-                "contradiction_type": "error",
-                "severity": 0.0,
-                "root_cause": f"Detection failed: {str(e)}",
-                "resolution_suggestion": "Manual review required",
-                "signatures_compared": [
-                    signature_a["signature_id"],
-                    signature_b["signature_id"]
-                ]
-            }
+            raise ContradictionDetectionError("Contradiction detection failed") from e
 
     def detect_multi(self, signatures: List[Dict]) -> List[Dict]:
         """

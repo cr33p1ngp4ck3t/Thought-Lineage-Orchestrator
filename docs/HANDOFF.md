@@ -41,8 +41,8 @@ Harden the Flask/Gemini hackathon backend using the practical Datafactor recomme
 - Added overlapping-key regression coverage and proved it fails when the SDK lock is disabled in a separate process. Added parallel API regressions for successful synthesis and degraded fallback, including graph edges and parent lineage.
 - Corrected lock regeneration instructions to freeze runtime dependencies before installing development tools.
 - Confirmed the UI has no caller of `GET /api/graph`; retained its documented 410 contract and the graph returned by each POST. External consumers must use the POST response.
-- GitHub authentication succeeds outside the sandbox. No Actions runs were returned for the repository, and this uncommitted workflow has not been published.
-- Playwright reproduced the missing fallback notice before the fix and confirmed hostile markup was inert. Final browser recheck/screenshot was blocked by automatic approval review; the actual JavaScript execution regression passes locally.
+- At the first resume, GitHub authentication succeeded outside the sandbox, but no Actions runs were returned and the workflow was still uncommitted.
+- At the first resume, Playwright reproduced the missing fallback notice before the fix and confirmed hostile markup was inert; its final recheck was blocked. The second resume completed that recheck as described below.
 
 ## Second resume verification
 
@@ -51,12 +51,13 @@ Harden the Flask/Gemini hackathon backend using the practical Datafactor recomme
 - Playwright loaded the final container at `http://127.0.0.1:5123/`, verified its title and populated page, and executed the actual `displayResults` function with normal and degraded results. Four nodes and four edges rendered; the accessible fallback notice appeared only in the degraded case. Hostile text in agent labels, conclusions, contradiction fields, and arbitration fields remained literal text, with no injected image or event-handler elements and no script execution.
 - Inspected the final full-page screenshot. No blank page or error overlay appeared. The only console error was the existing missing `favicon.ico` (404). This was a desktop rendering check with fixture results, not a live provider request or a full cross-browser audit.
 - Closed the browser and stopped the temporary `--rm` container `tlo-handoff-20261026`.
-- Created `harden/backend-review`. Elevated GitHub authentication succeeded, and the repository default branch is `main`. Commit, push, and hosted CI verification are the next steps.
+- Created `harden/backend-review` and committed the reviewed patch as `10e1e46` (`fix: harden backend request isolation and validation`). Elevated GitHub authentication succeeded, and the repository default branch is `main`.
+- Two attempts to `git push -u origin harden/backend-review` were not executed because automatic approval review timed out. The reviewer explicitly said this did not establish that the action was unsafe. The user approved another push attempt; publication and hosted CI verification remain pending until that attempt completes.
 - Made the `/api/graph` 410 compatibility change explicit in `CHANGELOG.md`.
 
 ## Remaining work
 
-1. Commit the reviewed patch on `harden/backend-review` and push it, then confirm both GitHub Actions jobs pass. The branch now exists; no commit or push has been created yet.
+1. Push the committed patch on `harden/backend-review`, then confirm both GitHub Actions jobs pass. The initial push and permitted retry did not execute because approval review timed out; the user approved another attempt.
 2. Run one live Gemini smoke test with a real key if available. No live provider request was made during this work.
 3. Consider whether to migrate from deprecated `google-generativeai` to `google-genai` as a separate change. The current patch intentionally preserves the existing SDK to keep scope controlled.
 4. External users of `/api/graph` must migrate to the graph returned by `POST /api/process`; this is now explicit in the release notes.
@@ -65,23 +66,20 @@ Harden the Flask/Gemini hackathon backend using the practical Datafactor recomme
 
 Automatic approval review repeatedly returned `content-blocked` for the final Docker rebuild, Playwright recheck, and elevated `git switch -c harden/backend-review`. It explicitly reported a review-system failure, not an unsafe-action determination, and those actions were not executed. The user approved retrying Docker; the retry failed identically. Do not bypass the review system. Resume these checks once approvals work, or use the user's local Git/Docker controls.
 
-On the second resume, Docker build/run/stop, Playwright, elevated branch creation, and GitHub authentication succeeded. The earlier blocker no longer prevents these actions. Git metadata writes and authenticated network access still need normal sandbox approval.
+On the second resume, Docker build/run/stop, Playwright, elevated branch creation, staging, commit, and GitHub authentication succeeded. The earlier blocker no longer prevents these actions. Push approval timed out twice; Git metadata writes and authenticated network access still need normal sandbox approval.
 
-Suggested local finishing commands (the branch already exists):
+Suggested local finishing commands (the hardening commit already exists):
 
 ```powershell
 git switch harden/backend-review
-git add .
-git commit -m "fix: harden backend request isolation and validation"
 git push -u origin harden/backend-review
 gh run list --branch harden/backend-review
-docker build -t thought-lineage-orchestrator:local .
 ```
 
 ## Workspace notes
 
-- The working tree contains all changes on `harden/backend-review`; commit and push are pending.
+- The reviewed product patch is committed on `harden/backend-review` as `10e1e46`; publication is pending. This handoff and the current prompt records are recorded in a follow-up documentation commit.
 - `.venv`, `.venv-runtime`, and `.cache` are ignored local verification artifacts.
-- `.playwright-mcp` contains ignored local browser artifacts; cleanup was also blocked by automatic approval review. Keep them out of commits and Docker context.
+- `.playwright-mcp` contains ignored local browser artifacts, including final verification evidence. Keep them out of commits and Docker context.
 - The user's Next.js request was retracted; this repository has no Next.js project and no frontend dependency upgrade was attempted.
 - Datafactor payout/history signals cannot be created by a single patch. Continued real features and fixes, each committed with their tests, remain necessary.

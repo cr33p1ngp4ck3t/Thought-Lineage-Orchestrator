@@ -4,7 +4,7 @@ Get the Thought Lineage Orchestrator running in 5 minutes.
 
 ## Prerequisites
 
-- Python 3.10+ installed
+- Python 3.13 installed
 - Gemini API key (get from https://aistudio.google.com/apikey)
 - Git (optional, for cloning)
 
@@ -18,7 +18,8 @@ cd gem-devpost
 
 ### Step 2: Install Dependencies
 ```bash
-pip install -r requirements.txt
+python -m venv .venv
+.venv/Scripts/python -m pip install -r requirements-lock.txt
 ```
 
 ### Step 3: Configure API Key
@@ -34,11 +35,12 @@ cp .env.example .env
 
 ### Option 1: Web Interface (Recommended)
 ```bash
-cd src
-python app.py
+.venv/Scripts/python src/app.py
 ```
 
 Then open your browser to `http://localhost:5000`
+
+On macOS or Linux, replace `.venv/Scripts/python` with `.venv/bin/python`.
 
 **Try the demo**:
 1. Problem is pre-filled: "Choose the pricing strategy for our AI tool"
@@ -46,23 +48,32 @@ Then open your browser to `http://localhost:5000`
 3. Click "Process Problem"
 4. Watch the multi-agent reasoning unfold with contradiction detection!
 
-### Option 2: Command Line Tests
+### Option 2: Automated offline tests
 
-**Test 1: Basic System Check**
+```bash
+.venv/Scripts/python -m pip install -r requirements-dev-lock.txt
+.venv/Scripts/python -m pytest tests -v
+```
+
+The suite uses fake Gemini responses, so it does not need an API key or network access.
+
+### Option 3: Live Gemini demos
+
+**Demo 1: Basic System Check**
 ```bash
 cd src
 python orchestrator.py
 ```
 Expected output: API connection successful, test signature created
 
-**Test 2: Multi-Agent Coordination**
+**Demo 2: Multi-Agent Coordination**
 ```bash
 cd src
 python test_agents.py
 ```
 Expected output: 3 agents process a product launch problem
 
-**Test 3: Contradiction Detection (The Wow Factor!)**
+**Demo 3: Contradiction Detection (The Wow Factor!)**
 ```bash
 cd src
 python test_contradiction.py
@@ -106,7 +117,7 @@ The "wow" moment:
 
 ### "Port 5000 already in use"
 - Another app is using port 5000
-- Edit `src/app.py` and change `app.run(debug=True, port=5000)` to another port like 5001
+- Set `PORT=5001` in `.env`
 
 ### Unicode errors on Windows
 - These have been fixed (emojis removed from output)

@@ -44,6 +44,8 @@ class SignatureResponse(BaseModel):
 
 
 class ContradictionResponse(BaseModel):
+    model_config = ConfigDict(strict=True)
+
     has_contradiction: bool
     contradiction_type: Literal["conclusion", "assumption", "evidence", "interpretation", "none"]
     severity: float = Field(ge=0, le=1)

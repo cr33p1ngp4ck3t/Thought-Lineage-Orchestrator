@@ -48,6 +48,24 @@ def test_synthesis_failure_is_explicitly_degraded():
     assert "unavailable" not in result["synthesis_explanation"]
 
 
+
+def test_string_contradiction_flag_is_rejected():
+    payload = {
+        "has_contradiction": "false",
+        "contradiction_type": "none",
+        "severity": 0,
+        "assumption_a": "",
+        "assumption_b": "",
+        "logical_incompatibility": "",
+        "divergence_point": "",
+        "fundamental_tradeoff": "",
+        "root_cause": "",
+        "resolution_suggestion": "",
+        "conflicting_elements": [],
+    }
+
+    with pytest.raises(ValidationError):
+        ContradictionResponse.model_validate(payload)
 def test_detector_uses_injected_client():
     client = FakeGeminiClient({
         "has_contradiction": False, "contradiction_type": "none", "severity": 0,

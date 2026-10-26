@@ -20,7 +20,6 @@ class FakeOrchestrator:
         }
 
 
-
 def test_health_endpoint():
     response = app_module.app.test_client().get("/health")
 
@@ -28,13 +27,11 @@ def test_health_endpoint():
     assert response.get_json() == {"status": "ok"}
 
 
-
 def test_process_rejects_non_object_json():
     response = app_module.app.test_client().post("/api/process", json=[])
 
     assert response.status_code == 400
     assert response.get_json()["error"] == "Request body must be a JSON object"
-
 
 
 def test_process_validates_fields():
@@ -47,7 +44,6 @@ def test_process_validates_fields():
     assert fields == {"problem", "mode"}
 
 
-
 def test_process_rejects_oversized_json_with_json_error():
     response = app_module.app.test_client().post(
         "/api/process", json={"problem": "x" * 70_000, "api_key": "secret"}
@@ -55,7 +51,6 @@ def test_process_rejects_oversized_json_with_json_error():
 
     assert response.status_code == 413
     assert response.get_json() == {"error": "Request body is too large"}
-
 
 
 def test_custom_key_is_request_local(monkeypatch):
@@ -79,12 +74,10 @@ def test_custom_key_is_request_local(monkeypatch):
     assert Config.GEMINI_API_KEY is None
 
 
-
 def test_graph_endpoint_does_not_expose_shared_results():
     response = app_module.app.test_client().get("/api/graph")
 
     assert response.status_code == 410
-
 
 
 def test_malformed_model_output_is_private_in_response_and_logs(monkeypatch, caplog):
@@ -102,7 +95,6 @@ def test_malformed_model_output_is_private_in_response_and_logs(monkeypatch, cap
     assert private_content not in response.get_data(as_text=True)
     assert private_content not in caplog.text
     assert "SignatureGenerationError" in caplog.text
-
 
 
 def test_boolean_model_confidence_is_rejected(monkeypatch):
@@ -130,7 +122,6 @@ def test_invalid_server_key_is_rejected_before_provider(monkeypatch, server_key)
     response = app_module.app.test_client().post("/api/process", json={"problem": "First"})
 
     assert response.status_code == 400
-
 
 
 @pytest.mark.parametrize("synthesis_fails", [False, True])

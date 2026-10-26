@@ -87,6 +87,23 @@ def test_graph_endpoint_does_not_expose_shared_results():
 
 
 
+def test_malformed_model_output_is_private_in_response_and_logs(monkeypatch, caplog):
+    private_content = "private model content"
+    monkeypatch.setattr(
+        app_module, "GeminiClient",
+        lambda *_: FakeGeminiClient({"conclusion": private_content}),
+    )
+
+    response = app_module.app.test_client().post(
+        "/api/process", json={"problem": "First", "api_key": "request-key"}
+    )
+
+    assert response.status_code == 502
+    assert private_content not in response.get_data(as_text=True)
+    assert private_content not in caplog.text
+    assert "SignatureGenerationError" in caplog.text
+
+
 @pytest.mark.parametrize("server_key", ["   ", "x" * 1001])
 def test_invalid_server_key_is_rejected_before_provider(monkeypatch, server_key):
     monkeypatch.setattr(Config, "GEMINI_API_KEY", server_key)

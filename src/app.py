@@ -2,12 +2,15 @@
 Flask web application for Thought Lineage Orchestrator visualization.
 """
 
+import logging
+
 from flask import Flask, jsonify, render_template, request
 from pydantic import ValidationError
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from agents import AnalyzerAgent, PlannerAgent
 from config import Config
+from errors import ContradictionDetectionError, ProviderError, SignatureGenerationError
 from gemini_client import GeminiClient
 from intelligence import ContradictionDetector, Synthesizer
 from orchestrator import ThoughtLineageOrchestrator, ThoughtSignature
@@ -15,6 +18,7 @@ from schemas import ProcessRequest
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = Config.MAX_CONTENT_LENGTH
+logger = logging.getLogger(__name__)
 
 
 @app.route("/")
@@ -39,6 +43,7 @@ def process_problem():
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return jsonify({"error": "Request body must be a JSON object"}), 400
+
     try:
         request_data = dict(data)
         if request_data.get("api_key") is None:
@@ -50,22 +55,29 @@ def process_problem():
             for error in exc.errors()
         ]
         return jsonify({"error": "Invalid request", "details": details}), 400
-    problem, mode, model = payload.problem, payload.mode, payload.model
+
     api_key = payload.api_key
     if not api_key:
-        return jsonify({"error": "No API key configured"}), 400
-    client = GeminiClient(api_key, model)
+        return jsonify(
+            {
+                "error": "No API key configured. Please enter your Gemini API key in the API Key field."
+            }
+        ), 400
+
+    client = GeminiClient(api_key, payload.model)
     orchestrator = ThoughtLineageOrchestrator(client)
     try:
-        if mode == "parallel":
-            results = run_parallel_demo(problem, orchestrator, client)
+        if payload.mode == "parallel":
+            results = run_parallel_demo(payload.problem, orchestrator, client)
         else:
-            results = orchestrator.process_problem(problem)
+            results = orchestrator.process_problem(payload.problem)
         return jsonify(results)
-    except Exception as e:
-        import traceback
-        print(f"[ERROR] {traceback.format_exc()}")
-        return jsonify({"error": str(e)}), 500
+    except (ProviderError, SignatureGenerationError, ContradictionDetectionError) as exc:
+        logger.error("Problem processing failed: %s", type(exc).__name__)
+        return jsonify({"error": "The reasoning service could not complete this request"}), 502
+    except Exception as exc:
+        logger.error("Unexpected problem processing failure: %s", type(exc).__name__)
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app.route("/api/graph")

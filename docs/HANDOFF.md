@@ -52,12 +52,13 @@ Harden the Flask/Gemini hackathon backend using the practical Datafactor recomme
 - Inspected the final full-page screenshot. No blank page or error overlay appeared. The only console error was the existing missing `favicon.ico` (404). This was a desktop rendering check with fixture results, not a live provider request or a full cross-browser audit.
 - Closed the browser and stopped the temporary `--rm` container `tlo-handoff-20261026`.
 - Created `harden/backend-review` and committed the reviewed patch as `10e1e46` (`fix: harden backend request isolation and validation`). Elevated GitHub authentication succeeded, and the repository default branch is `main`.
-- Two attempts to `git push -u origin harden/backend-review` were not executed because automatic approval review timed out. The reviewer explicitly said this did not establish that the action was unsafe. The user approved another push attempt; publication and hosted CI verification remain pending until that attempt completes.
+- Three attempts to `git push -u origin harden/backend-review`, including a retry explicitly approved by the user, were not executed because automatic approval review timed out. The reviewer explicitly said this did not establish that the action was unsafe. Do not bypass approval review.
+- A final elevated read-only check returned no remote `harden/backend-review` branch (`git ls-remote --heads`) and no Actions runs for that branch (`gh run list` returned `[]`). Publication and hosted CI verification remain blocked; the user can run the finishing commands below in a local terminal.
 - Made the `/api/graph` 410 compatibility change explicit in `CHANGELOG.md`.
 
 ## Remaining work
 
-1. Push the committed patch on `harden/backend-review`, then confirm both GitHub Actions jobs pass. The initial push and permitted retry did not execute because approval review timed out; the user approved another attempt.
+1. Push the committed patch on `harden/backend-review`, then confirm both GitHub Actions jobs pass. All three push attempts, including the user-approved retry, did not execute because approval review timed out. Use the user's local terminal or resume once approval review works.
 2. Run one live Gemini smoke test with a real key if available. No live provider request was made during this work.
 3. Consider whether to migrate from deprecated `google-generativeai` to `google-genai` as a separate change. The current patch intentionally preserves the existing SDK to keep scope controlled.
 4. External users of `/api/graph` must migrate to the graph returned by `POST /api/process`; this is now explicit in the release notes.
@@ -66,7 +67,7 @@ Harden the Flask/Gemini hackathon backend using the practical Datafactor recomme
 
 Automatic approval review repeatedly returned `content-blocked` for the final Docker rebuild, Playwright recheck, and elevated `git switch -c harden/backend-review`. It explicitly reported a review-system failure, not an unsafe-action determination, and those actions were not executed. The user approved retrying Docker; the retry failed identically. Do not bypass the review system. Resume these checks once approvals work, or use the user's local Git/Docker controls.
 
-On the second resume, Docker build/run/stop, Playwright, elevated branch creation, staging, commit, and GitHub authentication succeeded. The earlier blocker no longer prevents these actions. Push approval timed out twice; Git metadata writes and authenticated network access still need normal sandbox approval.
+On the second resume, Docker build/run/stop, Playwright, elevated branch creation, staging, commit, and GitHub authentication succeeded. The earlier blocker no longer prevents these actions. Push approval timed out on all three attempts, including the user-approved retry; Git metadata writes and authenticated network access still need normal sandbox approval.
 
 Suggested local finishing commands (the hardening commit already exists):
 
@@ -78,7 +79,7 @@ gh run list --branch harden/backend-review
 
 ## Workspace notes
 
-- The reviewed product patch is committed on `harden/backend-review` as `10e1e46`; publication is pending. This handoff and the current prompt records are recorded in a follow-up documentation commit.
+- The reviewed product patch is committed on `harden/backend-review` as `10e1e46`. Verification and prompt records were committed as `2e81213`; this final publication-blocker update is recorded in a further documentation commit. Publication is pending.
 - `.venv`, `.venv-runtime`, and `.cache` are ignored local verification artifacts.
 - `.playwright-mcp` contains ignored local browser artifacts, including final verification evidence. Keep them out of commits and Docker context.
 - The user's Next.js request was retracted; this repository has no Next.js project and no frontend dependency upgrade was attempted.

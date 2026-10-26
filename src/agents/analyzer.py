@@ -1,6 +1,7 @@
 """
 Analyzer Agent - Breaks down complex problems into sub-components.
 """
+
 from agents.base_agent import BaseAgent
 
 
@@ -10,10 +11,11 @@ class AnalyzerAgent(BaseAgent):
     Identifies key components, dependencies, and critical factors.
     """
 
-    def __init__(self):
+    def __init__(self, client=None):
         super().__init__(
             agent_id="analyzer-agent",
-            role_description="Problem Decomposition Specialist - breaks complex problems into manageable sub-components and identifies key factors"
+            role_description="Problem Decomposition Specialist - breaks complex problems into manageable sub-components and identifies key factors",
+            client=client,
         )
 
     def analyze(self, problem: str, constraints: list = None) -> dict:
@@ -31,5 +33,5 @@ class AnalyzerAgent(BaseAgent):
             problem=problem,
             reasoning_type="analysis",
             parent_signatures=None,
-            constraints=constraints
+            constraints=constraints,
         )

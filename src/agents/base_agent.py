@@ -1,31 +1,28 @@
 """
 Base agent class for all specialized agents in the TLO system.
 """
+
 import json
 from typing import Dict, List, Optional
-import google.generativeai as genai
-from config import Config
 
-# Configure Gemini API at import time only if key is available
-if Config.is_configured():
-    genai.configure(api_key=Config.GEMINI_API_KEY)
+from config import Config
+from gemini_client import GeminiClient
 
 
 class BaseAgent:
     """Base class for all reasoning agents."""
 
-    def __init__(self, agent_id: str, role_description: str):
+    def __init__(self, agent_id: str, role_description: str, client=None):
         self.agent_id = agent_id
         self.role_description = role_description
-        # Use current Config values (may have been updated with user-provided key)
-        self.model = genai.GenerativeModel(Config.GEMINI_MODEL)
+        self.client = client or GeminiClient(Config.GEMINI_API_KEY, Config.GEMINI_MODEL)
 
     def generate_signature(
         self,
         problem: str,
         reasoning_type: str,
         parent_signatures: Optional[List[Dict]] = None,
-        constraints: Optional[List[str]] = None
+        constraints: Optional[List[str]] = None,
     ) -> Dict:
         """
         Generate a thought signature for a given problem.
@@ -107,12 +104,12 @@ Remember: Output ONLY the JSON, no additional text.
 
         try:
             # Generate response using Gemini 3
-            response = self.model.generate_content(
+            response = self.client.generate_content(
                 prompt,
                 generation_config={
                     "response_mime_type": "application/json",
-                    "temperature": Config.DEFAULT_TEMPERATURE
-                }
+                    "temperature": Config.DEFAULT_TEMPERATURE,
+                },
             )
 
             # Parse JSON response
@@ -124,7 +121,7 @@ Remember: Output ONLY the JSON, no additional text.
             signature_data["context"] = {
                 "parent_signatures": [p.get("signature_id") for p in (parent_signatures or [])],
                 "input_data": {"problem": problem},
-                "constraints": constraints or []
+                "constraints": constraints or [],
             }
 
             return signature_data

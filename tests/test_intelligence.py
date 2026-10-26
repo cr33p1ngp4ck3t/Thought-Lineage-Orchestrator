@@ -24,8 +24,21 @@ def test_detection_failure_is_not_reported_as_no_contradiction():
         detector.detect(make_signature("a"), make_signature("b"))
 
 
+
+def test_malformed_detection_output_is_an_explicit_error():
+    detector = ContradictionDetector(FakeGeminiClient({"has_contradiction": False}))
+
+    with pytest.raises(ContradictionDetectionError):
+        detector.detect(make_signature("a"), make_signature("b"))
+
+
 def test_detector_uses_injected_client():
-    client = FakeGeminiClient({"has_contradiction": False})
+    client = FakeGeminiClient({
+        "has_contradiction": False, "contradiction_type": "none", "severity": 0,
+        "assumption_a": "", "assumption_b": "", "logical_incompatibility": "",
+        "divergence_point": "", "fundamental_tradeoff": "", "root_cause": "",
+        "resolution_suggestion": "", "conflicting_elements": [],
+    })
     result = ContradictionDetector(client).detect(make_signature("a"), make_signature("b"))
     assert result["has_contradiction"] is False
     assert result["signatures_compared"] == ["a", "b"]

@@ -2,12 +2,12 @@
 Contradiction Detector - Identifies logical conflicts between reasoning paths.
 """
 
-import json
 from typing import Dict, List
 
 from config import Config
 from errors import ContradictionDetectionError
 from gemini_client import GeminiClient
+from schemas import ContradictionResponse
 
 
 class ContradictionDetector:
@@ -82,7 +82,7 @@ Output ONLY valid JSON:
                 },
             )
 
-            result = json.loads(response.text)
+            result = ContradictionResponse.model_validate_json(response.text).model_dump()
             result["signatures_compared"] = [
                 signature_a["signature_id"],
                 signature_b["signature_id"],

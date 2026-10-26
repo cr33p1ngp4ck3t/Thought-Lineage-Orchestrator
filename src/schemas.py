@@ -35,3 +35,17 @@ class SignatureResponse(BaseModel):
     conclusion: str = Field(min_length=1)
     confidence_score: float = Field(ge=0, le=1)
     alternative_paths: list[AlternativePath] = Field(default_factory=list)
+
+
+class ContradictionResponse(BaseModel):
+    has_contradiction: bool
+    contradiction_type: Literal["conclusion", "assumption", "evidence", "interpretation", "none"]
+    severity: float = Field(ge=0, le=1)
+    assumption_a: str
+    assumption_b: str
+    logical_incompatibility: str
+    divergence_point: str
+    fundamental_tradeoff: str
+    root_cause: str
+    resolution_suggestion: str
+    conflicting_elements: list[str]

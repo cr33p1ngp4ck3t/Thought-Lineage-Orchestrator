@@ -104,6 +104,21 @@ def test_malformed_model_output_is_private_in_response_and_logs(monkeypatch, cap
     assert "SignatureGenerationError" in caplog.text
 
 
+
+def test_boolean_model_confidence_is_rejected(monkeypatch):
+    monkeypatch.setattr(
+        app_module, "GeminiClient", lambda *_: FakeGeminiClient(
+            signature_payload(confidence=True), signature_payload(), signature_payload()
+        )
+    )
+
+    response = app_module.app.test_client().post(
+        "/api/process", json={"problem": "First", "api_key": "request-key"}
+    )
+
+    assert response.status_code == 502
+
+
 @pytest.mark.parametrize("server_key", ["   ", "x" * 1001])
 def test_invalid_server_key_is_rejected_before_provider(monkeypatch, server_key):
     monkeypatch.setattr(Config, "GEMINI_API_KEY", server_key)

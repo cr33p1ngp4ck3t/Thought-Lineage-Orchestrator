@@ -18,6 +18,8 @@ class ProcessRequest(BaseModel):
 
 
 class ReasoningStep(BaseModel):
+    model_config = ConfigDict(strict=True)
+
     step: int
     thought: str
     confidence: float = Field(ge=0, le=1)
@@ -25,12 +27,16 @@ class ReasoningStep(BaseModel):
 
 
 class AlternativePath(BaseModel):
+    model_config = ConfigDict(strict=True)
+
     reasoning: str
     why_rejected: str
     confidence: float = Field(ge=0, le=1)
 
 
 class SignatureResponse(BaseModel):
+    model_config = ConfigDict(strict=True)
+
     reasoning_chain: list[ReasoningStep] = Field(min_length=1)
     conclusion: str = Field(min_length=1)
     confidence_score: float = Field(ge=0, le=1)
@@ -52,6 +58,8 @@ class ContradictionResponse(BaseModel):
 
 
 class ArbitrationLog(BaseModel):
+    model_config = ConfigDict(strict=True)
+
     deprioritized_assumption: str
     hybrid_assumption: str
     confidence_justification: str

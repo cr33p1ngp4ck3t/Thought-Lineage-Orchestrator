@@ -3,12 +3,14 @@ Flask web application for Thought Lineage Orchestrator visualization.
 """
 
 from flask import Flask, jsonify, render_template, request
+from pydantic import ValidationError
 
 from agents import AnalyzerAgent, PlannerAgent
 from config import Config
 from gemini_client import GeminiClient
 from intelligence import ContradictionDetector, Synthesizer
 from orchestrator import ThoughtLineageOrchestrator, ThoughtSignature
+from schemas import ProcessRequest
 
 app = Flask(__name__)
 
@@ -25,12 +27,16 @@ def process_problem():
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return jsonify({"error": "Request body must be a JSON object"}), 400
-    problem = data.get("problem", "")
-    mode = data.get("mode", "sequential")
-    api_key = data.get("api_key") or Config.GEMINI_API_KEY
-    model = data.get("model", "gemini-3-flash-preview")
-    if not problem:
-        return jsonify({"error": "Problem statement required"}), 400
+    try:
+        payload = ProcessRequest.model_validate(data)
+    except ValidationError as exc:
+        details = [
+            {"field": ".".join(str(part) for part in error["loc"]), "message": error["msg"]}
+            for error in exc.errors()
+        ]
+        return jsonify({"error": "Invalid request", "details": details}), 400
+    problem, mode, model = payload.problem, payload.mode, payload.model
+    api_key = payload.api_key or Config.GEMINI_API_KEY
     if not api_key:
         return jsonify({"error": "No API key configured"}), 400
     client = GeminiClient(api_key, model)

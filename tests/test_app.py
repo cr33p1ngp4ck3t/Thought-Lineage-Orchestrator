@@ -27,6 +27,16 @@ def test_process_rejects_non_object_json():
     assert response.get_json()["error"] == "Request body must be a JSON object"
 
 
+def test_process_validates_fields():
+    response = app_module.app.test_client().post(
+        "/api/process", json={"problem": "   ", "mode": "unknown", "api_key": "secret"}
+    )
+
+    assert response.status_code == 400
+    fields = {error["field"] for error in response.get_json()["details"]}
+    assert fields == {"problem", "mode"}
+
+
 def test_custom_key_is_request_local(monkeypatch):
     keys = []
 

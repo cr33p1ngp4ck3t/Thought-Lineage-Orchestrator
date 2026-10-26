@@ -74,9 +74,9 @@ Harden the Flask/Gemini hackathon backend using the practical Datafactor recomme
   `harden/backend-focused`, based on `e2d0967`. The original
   `harden/backend-review` branch is preserved at `29fd245`; no reset, amend,
   or force-push was performed.
-- The new history contains 49 commits: 23 initial behavior/client/test slices,
+- The new history contains 50 commits: 23 initial behavior/client/test slices,
   followed by separate operational, documentation, test-layout, plan, and request
-  records. Each behavior slice includes its own regression or injection check.
+  records, plus the publication-status update. Each behavior slice includes its own regression or injection check.
   Each commit passed the complete offline suite available at that point.
 - Final verification: 27 tests passed with 93% coverage; Ruff, pip check, and
   full-range whitespace checks passed. Both Node.js rendering cases executed.
@@ -87,6 +87,11 @@ Harden the Flask/Gemini hackathon backend using the practical Datafactor recomme
 - Hosted CI, Docker, browser, and live sequential Gemini results above were
   obtained on the original reviewed history. The focused branch has been
   verified locally; hosted CI publication for it is a separate finishing check.
+- Two attempts to push `harden/backend-focused` did not execute because automatic
+  approval review timed out. The timeout did not establish unsafe behavior.
+  The focused history is local; another automatic retry requires explicit user
+  approval. The user can publish it directly with
+  `git push -u origin harden/backend-focused`, then check both hosted CI jobs.
 - The detailed decomposition is recorded in
   `docs/superpowers/plans/2026-10-26-focused-backend-history.md`. Documentation
   commits are records, not additional feature or fix work. Payout impact remains

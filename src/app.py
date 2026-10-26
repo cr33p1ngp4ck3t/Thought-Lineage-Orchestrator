@@ -23,6 +23,11 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok"})
+
+
 @app.errorhandler(RequestEntityTooLarge)
 def request_too_large(_error):
     return jsonify({"error": "Request body is too large"}), 413

@@ -4,6 +4,7 @@ Flask web application for Thought Lineage Orchestrator visualization.
 
 from flask import Flask, jsonify, render_template, request
 from pydantic import ValidationError
+from werkzeug.exceptions import RequestEntityTooLarge
 
 from agents import AnalyzerAgent, PlannerAgent
 from config import Config
@@ -13,12 +14,18 @@ from orchestrator import ThoughtLineageOrchestrator, ThoughtSignature
 from schemas import ProcessRequest
 
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = Config.MAX_CONTENT_LENGTH
 
 
 @app.route("/")
 def index():
     """Main visualization page."""
     return render_template("index.html")
+
+
+@app.errorhandler(RequestEntityTooLarge)
+def request_too_large(_error):
+    return jsonify({"error": "Request body is too large"}), 413
 
 
 @app.route("/api/process", methods=["POST"])

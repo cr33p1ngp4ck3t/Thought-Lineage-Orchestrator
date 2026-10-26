@@ -20,6 +20,7 @@ class Config:
     # System settings
     MAX_REASONING_STEPS = 10
     DEFAULT_TEMPERATURE = 0.7
+    MAX_CONTENT_LENGTH = 64 * 1024
 
     @classmethod
     def validate(cls):

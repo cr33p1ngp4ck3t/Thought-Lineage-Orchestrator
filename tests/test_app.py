@@ -37,6 +37,15 @@ def test_process_validates_fields():
     assert fields == {"problem", "mode"}
 
 
+def test_process_rejects_oversized_json_with_json_error():
+    response = app_module.app.test_client().post(
+        "/api/process", json={"problem": "x" * 70_000, "api_key": "secret"}
+    )
+
+    assert response.status_code == 413
+    assert response.get_json() == {"error": "Request body is too large"}
+
+
 def test_custom_key_is_request_local(monkeypatch):
     keys = []
 

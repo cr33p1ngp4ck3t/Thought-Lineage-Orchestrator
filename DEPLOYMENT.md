@@ -16,7 +16,7 @@ The Thought Lineage Orchestrator is a Flask application. Here are the recommende
 5. Configure:
    - **Name**: `thought-lineage-orchestrator`
    - **Environment**: `Python 3`
-   - **Build Command**: `pip install -r requirements.txt`
+   - **Build Command**: `pip install -r requirements-lock.txt`
    - **Start Command**: `cd src && gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120`
    - **Environment Variables**:
      - Key: `GEMINI_API_KEY`
@@ -123,10 +123,13 @@ Vercel is optimized for serverless functions and Next.js, not traditional Flask 
 
 Always works perfectly:
 ```bash
-cd src
-python app.py
+python -m venv .venv
+.venv/Scripts/python -m pip install -r requirements-lock.txt
+.venv/Scripts/python src/app.py
 # Visit http://localhost:5000
 ```
+
+For container deployment, build the checked-in `Dockerfile`. The image exposes `/health` and starts Gunicorn on `$PORT`.
 
 ---
 

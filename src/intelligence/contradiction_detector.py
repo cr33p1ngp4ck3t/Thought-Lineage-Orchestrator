@@ -1,20 +1,19 @@
 """
 Contradiction Detector - Identifies logical conflicts between reasoning paths.
 """
-import json
-from typing import Dict, List, Optional
-import google.generativeai as genai
-from config import Config
 
-if Config.is_configured():
-    genai.configure(api_key=Config.GEMINI_API_KEY)
+import json
+from typing import Dict, List
+
+from config import Config
+from gemini_client import GeminiClient
 
 
 class ContradictionDetector:
     """Detects and analyzes contradictions between thought signatures."""
 
-    def __init__(self):
-        self.model = genai.GenerativeModel(Config.GEMINI_MODEL)
+    def __init__(self, client=None):
+        self.client = client or GeminiClient(Config.GEMINI_API_KEY, Config.GEMINI_MODEL)
 
     def detect(self, signature_a: Dict, signature_b: Dict) -> Dict:
         """
@@ -30,19 +29,19 @@ class ContradictionDetector:
         prompt = f"""
 You are analyzing IRRECONCILABLE ASSUMPTIONS between two reasoning agents.
 
-SIGNATURE A (from {signature_a['agent_id']}):
-Conclusion: {signature_a['conclusion']}
-Confidence: {signature_a['confidence_score']}
+SIGNATURE A (from {signature_a["agent_id"]}):
+Conclusion: {signature_a["conclusion"]}
+Confidence: {signature_a["confidence_score"]}
 
 Key reasoning:
-{self._format_reasoning_chain(signature_a['reasoning_chain'][:3])}
+{self._format_reasoning_chain(signature_a["reasoning_chain"][:3])}
 
-SIGNATURE B (from {signature_b['agent_id']}):
-Conclusion: {signature_b['conclusion']}
-Confidence: {signature_b['confidence_score']}
+SIGNATURE B (from {signature_b["agent_id"]}):
+Conclusion: {signature_b["conclusion"]}
+Confidence: {signature_b["confidence_score"]}
 
 Key reasoning:
-{self._format_reasoning_chain(signature_b['reasoning_chain'][:3])}
+{self._format_reasoning_chain(signature_b["reasoning_chain"][:3])}
 
 CRITICAL ANALYSIS REQUIRED:
 Focus on ASSUMPTION-LEVEL conflicts, not just conclusion differences.
@@ -74,18 +73,18 @@ Output ONLY valid JSON:
 """
 
         try:
-            response = self.model.generate_content(
+            response = self.client.generate_content(
                 prompt,
                 generation_config={
                     "response_mime_type": "application/json",
-                    "temperature": 0.3  # Lower temperature for analytical tasks
-                }
+                    "temperature": 0.3,  # Lower temperature for analytical tasks
+                },
             )
 
             result = json.loads(response.text)
             result["signatures_compared"] = [
                 signature_a["signature_id"],
-                signature_b["signature_id"]
+                signature_b["signature_id"],
             ]
             return result
 

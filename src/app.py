@@ -28,7 +28,10 @@ def process_problem():
     if not isinstance(data, dict):
         return jsonify({"error": "Request body must be a JSON object"}), 400
     try:
-        payload = ProcessRequest.model_validate(data)
+        request_data = dict(data)
+        if request_data.get("api_key") is None:
+            request_data["api_key"] = Config.GEMINI_API_KEY
+        payload = ProcessRequest.model_validate(request_data)
     except ValidationError as exc:
         details = [
             {"field": ".".join(str(part) for part in error["loc"]), "message": error["msg"]}
@@ -36,7 +39,7 @@ def process_problem():
         ]
         return jsonify({"error": "Invalid request", "details": details}), 400
     problem, mode, model = payload.problem, payload.mode, payload.model
-    api_key = payload.api_key or Config.GEMINI_API_KEY
+    api_key = payload.api_key
     if not api_key:
         return jsonify({"error": "No API key configured"}), 400
     client = GeminiClient(api_key, model)

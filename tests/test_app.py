@@ -62,3 +62,16 @@ def test_graph_endpoint_does_not_expose_shared_results():
     response = app_module.app.test_client().get("/api/graph")
 
     assert response.status_code == 410
+
+
+@pytest.mark.parametrize("server_key", ["   ", "x" * 1001])
+def test_invalid_server_key_is_rejected_before_provider(monkeypatch, server_key):
+    monkeypatch.setattr(Config, "GEMINI_API_KEY", server_key)
+
+    def unexpected_client(*_):
+        pytest.fail("Invalid server credential reached the provider")
+
+    monkeypatch.setattr(app_module, "GeminiClient", unexpected_client)
+    response = app_module.app.test_client().post("/api/process", json={"problem": "First"})
+
+    assert response.status_code == 400

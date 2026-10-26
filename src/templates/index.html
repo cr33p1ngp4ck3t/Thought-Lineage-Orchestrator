@@ -514,6 +514,7 @@ Choose the pricing strategy for our AI tool</textarea
                             <div class="confidence">Confidence: ${(sig.confidence_score * 100).toFixed(0)}%</div>
                         </div>
                         <div class="node-content">
+                            ${sig.degraded ? '<p role="status"><strong>Synthesis unavailable:</strong> Showing the higher-confidence plan instead.</p>' : ""}
                             <strong>Conclusion:</strong> ${escapeHtml(sig.conclusion)}
                             ${arbitrationHtml}
                         </div>

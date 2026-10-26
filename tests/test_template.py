@@ -9,8 +9,8 @@ import app as app_module
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="Rendering self-check requires Node.js")
-def test_template_escapes_generated_content_and_shows_synthesis_fallback():
-    degraded = False
+@pytest.mark.parametrize("degraded", [False, True])
+def test_template_escapes_generated_content_and_shows_synthesis_fallback(degraded):
     response = app_module.app.test_client().get("/")
     html = response.get_data(as_text=True)
     script = re.search(r"<script>(.*?)</script>", html, re.DOTALL).group(1)
@@ -48,3 +48,4 @@ def test_template_escapes_generated_content_and_shows_synthesis_fallback():
     assert payload not in rendered
     assert "&lt;img src=x onerror=&quot;alert(1)&quot;&gt; &amp; text" in rendered
     assert '<div class="node analysis">' in rendered
+    assert ("Synthesis unavailable" in rendered) is degraded

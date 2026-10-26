@@ -115,18 +115,46 @@ orchestrator.save_graph("reasoning_lineage.json")
 ## Installation & Setup
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Python 3.13
+python -m venv .venv
+
+# Windows
+.venv/Scripts/python -m pip install -r requirements-lock.txt
+
+# macOS/Linux
+.venv/bin/python -m pip install -r requirements-lock.txt
 
 # Set up environment
 cp .env.example .env
 # Edit .env and add your Gemini API key
 
-# Run web interface
-cd src
-python app.py
+# Run web interface from the repository root
+.venv/Scripts/python src/app.py
 
 # Visit http://localhost:5000
+```
+
+On macOS or Linux, replace `.venv/Scripts/python` with `.venv/bin/python`.
+
+The service exposes `GET /health` for liveness. Each `POST /api/process` response contains its own graph; the former shared `GET /api/graph` endpoint now returns `410` to prevent one request from exposing another request's results.
+
+### Tests and lint
+
+Tests use fake Gemini responses and run without an API key or network access.
+
+```bash
+.venv/Scripts/python -m pip install -r requirements-lock.txt -r requirements-dev-lock.txt
+.venv/Scripts/python -m ruff check src tests
+.venv/Scripts/python -m pytest tests -v
+```
+
+Use `.venv/bin/python` on macOS or Linux. See `CONTRIBUTING.md` for lockfile maintenance.
+
+### Docker
+
+```bash
+docker build -t thought-lineage-orchestrator .
+docker run --rm -p 5000:5000 -e GEMINI_API_KEY=your_key thought-lineage-orchestrator
 ```
 
 ## Demo Scenarios

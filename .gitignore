@@ -6,6 +6,15 @@ __pycache__/
 .Python
 env/
 venv/
+.venv/
+.venv-*/
+.cache/
+.pytest_cache/
+.ruff_cache/
+.playwright-mcp/
+.coverage
+htmlcov/
+coverage.xml
 ENV/
 build/
 develop-eggs/
@@ -41,7 +50,3 @@ Thumbs.db
 *.json
 !src/signature_schema.json
 *.output
-
-
-templates/
-static/

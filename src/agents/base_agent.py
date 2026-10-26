@@ -1,31 +1,29 @@
 """
 Base agent class for all specialized agents in the TLO system.
 """
-import json
-from typing import Dict, List, Optional
-import google.generativeai as genai
-from config import Config
 
-# Configure Gemini API at import time only if key is available
-if Config.is_configured():
-    genai.configure(api_key=Config.GEMINI_API_KEY)
+from typing import Dict, List, Optional
+
+from config import Config
+from errors import SignatureGenerationError
+from gemini_client import GeminiClient
+from schemas import SignatureResponse
 
 
 class BaseAgent:
     """Base class for all reasoning agents."""
 
-    def __init__(self, agent_id: str, role_description: str):
+    def __init__(self, agent_id: str, role_description: str, client=None):
         self.agent_id = agent_id
         self.role_description = role_description
-        # Use current Config values (may have been updated with user-provided key)
-        self.model = genai.GenerativeModel(Config.GEMINI_MODEL)
+        self.client = client or GeminiClient(Config.GEMINI_API_KEY, Config.GEMINI_MODEL)
 
     def generate_signature(
         self,
         problem: str,
         reasoning_type: str,
         parent_signatures: Optional[List[Dict]] = None,
-        constraints: Optional[List[str]] = None
+        constraints: Optional[List[str]] = None,
     ) -> Dict:
         """
         Generate a thought signature for a given problem.
@@ -107,16 +105,16 @@ Remember: Output ONLY the JSON, no additional text.
 
         try:
             # Generate response using Gemini 3
-            response = self.model.generate_content(
+            response = self.client.generate_content(
                 prompt,
                 generation_config={
                     "response_mime_type": "application/json",
-                    "temperature": Config.DEFAULT_TEMPERATURE
-                }
+                    "temperature": Config.DEFAULT_TEMPERATURE,
+                },
             )
 
             # Parse JSON response
-            signature_data = json.loads(response.text)
+            signature_data = SignatureResponse.model_validate_json(response.text).model_dump()
 
             # Add agent metadata
             signature_data["agent_id"] = self.agent_id
@@ -124,18 +122,15 @@ Remember: Output ONLY the JSON, no additional text.
             signature_data["context"] = {
                 "parent_signatures": [p.get("signature_id") for p in (parent_signatures or [])],
                 "input_data": {"problem": problem},
-                "constraints": constraints or []
+                "constraints": constraints or [],
             }
 
             return signature_data
 
-        except json.JSONDecodeError as e:
-            print(f"[ERROR] Failed to parse JSON from {self.agent_id}: {e}")
-            print(f"Response text: {response.text[:500]}")
-            raise
         except Exception as e:
-            print(f"[ERROR] {self.agent_id} failed to generate signature: {e}")
-            raise
+            if isinstance(e, SignatureGenerationError):
+                raise
+            raise SignatureGenerationError(f"{self.agent_id} could not generate a signature") from e
 
     def __str__(self):
         return f"{self.agent_id} ({self.role_description})"

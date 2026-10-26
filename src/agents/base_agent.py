@@ -2,11 +2,12 @@
 Base agent class for all specialized agents in the TLO system.
 """
 
-import json
 from typing import Dict, List, Optional
 
 from config import Config
+from errors import SignatureGenerationError
 from gemini_client import GeminiClient
+from schemas import SignatureResponse
 
 
 class BaseAgent:
@@ -113,7 +114,7 @@ Remember: Output ONLY the JSON, no additional text.
             )
 
             # Parse JSON response
-            signature_data = json.loads(response.text)
+            signature_data = SignatureResponse.model_validate_json(response.text).model_dump()
 
             # Add agent metadata
             signature_data["agent_id"] = self.agent_id
@@ -126,13 +127,10 @@ Remember: Output ONLY the JSON, no additional text.
 
             return signature_data
 
-        except json.JSONDecodeError as e:
-            print(f"[ERROR] Failed to parse JSON from {self.agent_id}: {e}")
-            print(f"Response text: {response.text[:500]}")
-            raise
         except Exception as e:
-            print(f"[ERROR] {self.agent_id} failed to generate signature: {e}")
-            raise
+            if isinstance(e, SignatureGenerationError):
+                raise
+            raise SignatureGenerationError(f"{self.agent_id} could not generate a signature") from e
 
     def __str__(self):
         return f"{self.agent_id} ({self.role_description})"

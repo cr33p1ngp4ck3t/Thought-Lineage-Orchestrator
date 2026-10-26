@@ -1,3 +1,6 @@
+import pytest
+
+from errors import SignatureGenerationError
 from orchestrator import ReasoningGraph, ThoughtLineageOrchestrator, ThoughtSignature
 from tests.fakes import FakeGeminiClient, signature_payload
 
@@ -23,6 +26,7 @@ def test_thought_signature_serializes_context():
     }
 
 
+
 def test_reasoning_graph_returns_complete_lineage():
     graph = ReasoningGraph()
     root = ThoughtSignature("root", "analysis", [], "Root", 0.9)
@@ -36,6 +40,7 @@ def test_reasoning_graph_returns_complete_lineage():
         graph.add_signature(signature)
 
     assert graph.get_lineage(leaf.signature_id) == [child, root]
+
 
 
 def test_orchestrator_runs_offline_with_injected_client():
@@ -54,3 +59,11 @@ def test_orchestrator_runs_offline_with_injected_client():
         "executor-agent",
     ]
     assert len(result["graph"]["nodes"]) == 3
+
+
+
+def test_orchestrator_rejects_malformed_model_output():
+    client = FakeGeminiClient({"conclusion": "Missing reasoning fields"})
+
+    with pytest.raises(SignatureGenerationError):
+        ThoughtLineageOrchestrator(client).process_problem("Launch a product")

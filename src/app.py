@@ -22,7 +22,9 @@ def index():
 @app.route("/api/process", methods=["POST"])
 def process_problem():
     """Process a problem through the TLO system."""
-    data = request.json
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "Request body must be a JSON object"}), 400
     problem = data.get("problem", "")
     mode = data.get("mode", "sequential")
     api_key = data.get("api_key") or Config.GEMINI_API_KEY

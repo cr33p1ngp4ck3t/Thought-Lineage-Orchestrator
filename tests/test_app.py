@@ -20,6 +20,13 @@ class FakeOrchestrator:
         }
 
 
+def test_process_rejects_non_object_json():
+    response = app_module.app.test_client().post("/api/process", json=[])
+
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "Request body must be a JSON object"
+
+
 def test_custom_key_is_request_local(monkeypatch):
     keys = []
 

@@ -39,3 +39,9 @@ def test_custom_key_is_request_local(monkeypatch):
     assert second.status_code == 400
     assert keys == ["request-key"]
     assert Config.GEMINI_API_KEY is None
+
+
+def test_graph_endpoint_does_not_expose_shared_results():
+    response = app_module.app.test_client().get("/api/graph")
+
+    assert response.status_code == 410

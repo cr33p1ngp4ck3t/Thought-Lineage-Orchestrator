@@ -11,8 +11,6 @@ from intelligence import ContradictionDetector, Synthesizer
 from orchestrator import ThoughtLineageOrchestrator, ThoughtSignature
 
 app = Flask(__name__)
-orchestrator = None
-current_results = None
 
 
 @app.route("/")
@@ -24,7 +22,6 @@ def index():
 @app.route("/api/process", methods=["POST"])
 def process_problem():
     """Process a problem through the TLO system."""
-    global orchestrator, current_results
     data = request.json
     problem = data.get("problem", "")
     mode = data.get("mode", "sequential")
@@ -41,7 +38,6 @@ def process_problem():
             results = run_parallel_demo(problem, orchestrator, client)
         else:
             results = orchestrator.process_problem(problem)
-        current_results = results
         return jsonify(results)
     except Exception as e:
         import traceback
@@ -49,12 +45,9 @@ def process_problem():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/graph')
+@app.route("/api/graph")
 def get_graph():
-    """Get the current reasoning graph."""
-    if orchestrator:
-        return jsonify(orchestrator.get_graph_visualization_data())
-    return jsonify({"nodes": [], "edges": []})
+    return jsonify({"error": "Graph data is returned by POST /api/process"}), 410
 
 
 def run_parallel_demo(problem, orchestrator, client):

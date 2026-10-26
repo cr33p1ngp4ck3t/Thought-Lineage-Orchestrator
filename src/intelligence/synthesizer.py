@@ -2,11 +2,11 @@
 Synthesizer - Resolves contradictions and creates hybrid solutions.
 """
 
-import json
 from typing import Dict
 
 from config import Config
 from gemini_client import GeminiClient
+from schemas import SynthesisResponse
 
 
 class Synthesizer:
@@ -102,7 +102,7 @@ Output ONLY the JSON.
                 generation_config={"response_mime_type": "application/json", "temperature": 0.5},
             )
 
-            synthesis_data = json.loads(response.text)
+            synthesis_data = SynthesisResponse.model_validate_json(response.text).model_dump()
 
             # Add metadata
             synthesis_data["agent_id"] = "synthesizer-orchestrator"
@@ -115,10 +115,13 @@ Output ONLY the JSON.
 
             return synthesis_data
 
-        except Exception as e:
-            print(f"[ERROR] Synthesis failed: {e}")
+        except Exception:
             # Return fallback: choose higher confidence path
-            higher_conf = signature_a if signature_a['confidence_score'] > signature_b['confidence_score'] else signature_b
+            higher_conf = (
+                signature_a
+                if signature_a["confidence_score"] > signature_b["confidence_score"]
+                else signature_b
+            )
             return {
                 "agent_id": "synthesizer-orchestrator",
                 "reasoning_type": "synthesis",
@@ -126,17 +129,18 @@ Output ONLY the JSON.
                     {
                         "step": 1,
                         "thought": f"Synthesis failed, defaulting to higher confidence path from {higher_conf['agent_id']}",
-                        "confidence": higher_conf['confidence_score'],
-                        "evidence": ["Automatic fallback due to synthesis error"]
+                        "confidence": higher_conf["confidence_score"],
+                        "evidence": ["Automatic fallback due to synthesis error"],
                     }
                 ],
-                "conclusion": higher_conf['conclusion'],
-                "confidence_score": higher_conf['confidence_score'] * 0.9,  # Slight penalty
+                "conclusion": higher_conf["conclusion"],
+                "confidence_score": higher_conf["confidence_score"] * 0.9,  # Slight penalty
                 "alternative_paths": [],
-                "synthesis_explanation": f"Fallback to {higher_conf['agent_id']} due to synthesis error: {str(e)}",
+                "synthesis_explanation": f"Fallback to {higher_conf['agent_id']} because synthesis failed",
+                "degraded": True,
                 "context": {
                     "parent_signatures": [signature_a["signature_id"], signature_b["signature_id"]],
                     "input_data": {},
-                    "constraints": []
-                }
+                    "constraints": [],
+                },
             }

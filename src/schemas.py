@@ -49,3 +49,15 @@ class ContradictionResponse(BaseModel):
     root_cause: str
     resolution_suggestion: str
     conflicting_elements: list[str]
+
+
+class ArbitrationLog(BaseModel):
+    deprioritized_assumption: str
+    hybrid_assumption: str
+    confidence_justification: str
+    risk_resolution: str
+
+
+class SynthesisResponse(SignatureResponse):
+    arbitration_log: ArbitrationLog
+    synthesis_explanation: str

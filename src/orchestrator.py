@@ -26,6 +26,8 @@ class ThoughtSignature:
         input_data: Optional[Dict] = None,
         constraints: Optional[List[str]] = None,
         alternative_paths: Optional[List[Dict]] = None,
+        arbitration_log: Optional[Dict] = None,
+        degraded: bool = False,
     ):
         self.signature_id = str(uuid.uuid4())
         self.agent_id = agent_id
@@ -40,10 +42,12 @@ class ThoughtSignature:
         self.conclusion = conclusion
         self.confidence_score = confidence_score
         self.alternative_paths = alternative_paths or []
+        self.arbitration_log = arbitration_log
+        self.degraded = degraded
 
     def to_dict(self) -> Dict:
         """Convert signature to dictionary format."""
-        return {
+        result = {
             "signature_id": self.signature_id,
             "agent_id": self.agent_id,
             "timestamp": self.timestamp,
@@ -54,6 +58,11 @@ class ThoughtSignature:
             "confidence_score": self.confidence_score,
             "alternative_paths": self.alternative_paths,
         }
+        if self.arbitration_log:
+            result["arbitration_log"] = self.arbitration_log
+        if self.degraded:
+            result["degraded"] = True
+        return result
 
     def to_json(self) -> str:
         """Convert signature to JSON string."""

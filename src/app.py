@@ -160,6 +160,8 @@ def run_parallel_demo(problem, orchestrator, client):
             input_data=synthesis_data["context"].get("input_data", {}),
             constraints=synthesis_data["context"].get("constraints", []),
             alternative_paths=synthesis_data.get("alternative_paths", []),
+            arbitration_log=synthesis_data.get("arbitration_log"),
+            degraded=synthesis_data.get("degraded", False),
         )
         orchestrator.register_signature(synthesis_sig)
 

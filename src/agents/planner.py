@@ -1,6 +1,7 @@
 """
 Planner Agent - Creates action sequences based on analysis.
 """
+
 from agents.base_agent import BaseAgent
 
 
@@ -10,7 +11,7 @@ class PlannerAgent(BaseAgent):
     Takes analysis and creates actionable plans with timing and dependencies.
     """
 
-    def __init__(self, focus=None):
+    def __init__(self, focus=None, client=None):
         if focus == "growth":
             agent_id = "planner-growth-focus"
             role_description = "Growth-Obsessed Strategist - Your ONLY metric is User Acquisition. Your reward function is 100% tied to capturing market share. You MUST prioritize rapid adoption even if it means burning cash or accepting risks. Budget overruns are acceptable if they accelerate growth."
@@ -21,9 +22,11 @@ class PlannerAgent(BaseAgent):
             agent_id = "planner-agent"
             role_description = "Strategic Planning Specialist - creates actionable plans with timing, sequencing, and resource allocation"
 
-        super().__init__(agent_id=agent_id, role_description=role_description)
+        super().__init__(agent_id=agent_id, role_description=role_description, client=client)
 
-    def plan(self, problem: str, analysis_signatures: list = None, constraints: list = None) -> dict:
+    def plan(
+        self, problem: str, analysis_signatures: list = None, constraints: list = None
+    ) -> dict:
         """
         Create a plan based on the problem and prior analysis.
 
@@ -39,5 +42,5 @@ class PlannerAgent(BaseAgent):
             problem=problem,
             reasoning_type="decision",
             parent_signatures=analysis_signatures,
-            constraints=constraints
+            constraints=constraints,
         )

@@ -1,6 +1,7 @@
 """
 Executor Agent - Implements plans and reports results.
 """
+
 from agents.base_agent import BaseAgent
 
 
@@ -10,13 +11,16 @@ class ExecutorAgent(BaseAgent):
     Takes strategic plans and determines concrete execution steps.
     """
 
-    def __init__(self):
+    def __init__(self, client=None):
         super().__init__(
             agent_id="executor-agent",
-            role_description="Execution Specialist - transforms strategic plans into concrete implementation steps with measurable outcomes"
+            role_description="Execution Specialist - transforms strategic plans into concrete implementation steps with measurable outcomes",
+            client=client,
         )
 
-    def execute_plan(self, problem: str, planning_signatures: list = None, constraints: list = None) -> dict:
+    def execute_plan(
+        self, problem: str, planning_signatures: list = None, constraints: list = None
+    ) -> dict:
         """
         Create execution steps based on the planning phase.
 
@@ -32,5 +36,5 @@ class ExecutorAgent(BaseAgent):
             problem=f"Create concrete execution steps for: {problem}",
             reasoning_type="evaluation",
             parent_signatures=planning_signatures,
-            constraints=constraints
+            constraints=constraints,
         )
